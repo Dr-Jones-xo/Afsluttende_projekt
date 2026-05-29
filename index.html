@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <title>Netværks Control - Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f4f9; }
+        .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 10px 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .nav-bar { margin-top: 20px; background: #333; padding: 10px; border-radius: 4px; }
+        .nav-bar a { color: white; text-decoration: none; margin-right: 20px; font-weight: bold; }
+        .nav-bar a:hover { color: #007bff; }
+        .active { border-bottom: 2px solid #007bff; padding-bottom: 3px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
+        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #007bff; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        .logout-btn { background-color: #dc3545; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; }
+        .logout-btn:hover { background-color: #bd2130; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Velkommen, {{ username }}!</h1>
+        <a href="/logout" class="logout-btn">Log ud</a>
+    </div>
+
+    <div class="nav-bar">
+        <a href="/" class="active">Overvågning (Seneste)</a>
+        <a href="/historik">Fuld Historik</a>
+    </div>
+
+    <h3>Seneste data fra databasen (Top 10):</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Værdi</th>
+            </tr>
+        </thead>
+        <tbody id="sensor-tabel-body">
+            {% for maaling in maalinger %}
+            <tr>
+                <td>{{ maaling[0] }}</td>
+                <td>{{ maaling[1] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+<script>
+function opdaterTabel() {
+    // Hent de nyeste tal fra vores nye Python-API
+    fetch('/api/live_data')
+        .then(response => response.json())
+        .then(data => {
+            const tabelBody = document.getElementById('sensor-tabel-body');
+            tabelBody.innerHTML = ''; // Tøm tabellen for gamle rækker
+
+            data.forEach(maaling => {
+                const raekke = `
+                    <tr>
+                        <td>${maaling.id}</td>
+                        <td>${maaling.value}</td>
+                    </tr>
+                `;
+                tabelBody.innerHTML += raekke;
+            });
+        })
+        .catch(error => console.error('Fejl i live-opdatering:', error));
+}
+
+setInterval(opdaterTabel, 2000);
+</script>
+</body>
+</html>
