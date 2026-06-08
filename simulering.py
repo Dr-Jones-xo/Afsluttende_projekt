@@ -3,7 +3,7 @@ import time
 import random
 
 # Erstat med din VM's rigtige IP-adresse
-URL = "http://192.168.10.10:5000/data" 
+URL = "http://100.116.xxx.xxx:5000/data" 
 
 print("Starter datasimulering... Tryk CTRL+C for at stoppe.")
 
