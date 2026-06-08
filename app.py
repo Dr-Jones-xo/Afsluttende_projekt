@@ -21,21 +21,16 @@ def index():
     if 'logged_in' not in session:
         return redirect(url_for('login'))
         
-    # try:
-    #     conn = get_db_connection()
-    #     cur = conn.cursor()
-    #     cur.execute('SELECT * FROM sensor_data ORDER BY id DESC LIMIT 10;') 
-    #     data = cur.fetchall()
-    #     cur.close()
-    #     conn.close()
-    # except Exception as e:
-    #     data = []
-    #     print(f"Databasefejl: {e}")
-    data = [
-        (1, "45.2"), 
-        (2, "22.8"), 
-        (3, "88.1")
-    ]
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM sensor_data ORDER BY id DESC LIMIT 10;') 
+        data = cur.fetchall()
+        cur.close()
+        conn.close()
+    except Exception as e:
+        data = []
+        print(f"Databasefejl: {e}")
         
     return render_template('index.html', maalinger=data, username=session['username'])
 
@@ -93,17 +88,13 @@ def historik():
         return redirect(url_for('login'))
         
     # Lokale testdata til din Windows-PC (I Linux fjerner vi dette og henter fra DB)
-    alt_data = [
-        (1, "45.2"), (2, "22.8"), (3, "88.1"), 
-        (4, "12.4"), (5, "99.9"), (6, "34.2")
-    ]
     
     # I Linux-versionen vil koden herovre være:
-    # conn = get_db_connection()
-    # cur = conn.cursor()
-    # cur.execute('SELECT * FROM sensor_data ORDER BY id DESC;') # Uden LIMIT!
-    # alt_data = cur.fetchall()
-    # cur.close(); conn.close()
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM sensor_data ORDER BY id DESC;') # Uden LIMIT!
+    alt_data = cur.fetchall()
+    cur.close(); conn.close()
         
     return render_template('historik.html', maalinger=alt_data, username=session['username'])
 
@@ -113,12 +104,12 @@ def recieve_data():
     content = request.json
     sensor_val = content.get('value')
     
-    # conn = get_db_connection()
-    # cur = conn.cursor()
-    # cur.execute('INSERT INTO sensor_data (value) VALUES (%s)', (sensor_val,))
-    # conn.commit()
-    # cur.close()
-    # conn.close()
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute('INSERT INTO sensor_data (value) VALUES (%s)', (sensor_val,))
+    conn.commit()
+    cur.close()
+    conn.close()
     
     print(f"--- MODTAGET DATA FRA SIMULERING: {sensor_val} ---")
     return jsonify({"status": "succes", "received": sensor_val}), 201
